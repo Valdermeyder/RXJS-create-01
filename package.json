@@ -2,9 +2,7 @@
   "name": "rxjs-typescript-starter",
   "scripts": {
     "project": "./node_modules/.bin/webpack-dev-server --config webpack.dev.js",
-    "build": "./node_modules/.bin/webpack --config webpack.dev.js",
-    "server": "json-server --watch db/db.json --port 3001",
-    "start": "concurrently --kill-others \"npm run project\""
+    "start": "npm run project"
   },
   "dependencies": {
     "rxjs": "^6.5.5"
@@ -12,9 +10,7 @@
   "devDependencies": {
     "@webpack-cli/init": "^0.3.0",
     "babel-plugin-syntax-dynamic-import": "6.18.0",
-    "concurrently": "^4.1.2",
-    "json-server": "^0.16.1",
-    "ts-loader": "4.4.1",
+    "ts-loader": "^7.0.5",
     "typescript": "^3.9.5",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.12",
