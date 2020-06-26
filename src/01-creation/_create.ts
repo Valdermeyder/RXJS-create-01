@@ -28,7 +28,7 @@ export function createObservableDemo() {
     complete: () => console.log(`Complete!`)
   };
 
-  const sub = http$.subscribe(observer);
+  // const sub = http$.subscribe(observer);
 
   // case 2
   // const sub = http$.subscribe(
