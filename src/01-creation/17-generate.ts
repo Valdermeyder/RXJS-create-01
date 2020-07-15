@@ -1,3 +1,11 @@
+// generate<T, S>(
+//    initialStateOrOptions: S | GenerateOptions<T, S>, 
+//    condition?: ConditionFunc<S>, 
+//    iterate?: IterateFunc<S>, 
+//    resultSelectorOrObservable?: SchedulerLike | ResultFunc<S, T>, 
+//    scheduler?: SchedulerLike
+// ): Observable<T>
+
 import { generate, asyncScheduler } from 'rxjs';
 import { addItem, run } from './../03-utils';
 

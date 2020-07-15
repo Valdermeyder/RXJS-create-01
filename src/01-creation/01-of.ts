@@ -1,3 +1,5 @@
+// of<T>(...args: (SchedulerLike | T)[]): Observable<T>
+
 import { of, asyncScheduler } from 'rxjs';
 import { addItem, run } from './../03-utils';
 
