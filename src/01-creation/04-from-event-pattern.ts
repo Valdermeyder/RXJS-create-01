@@ -1,7 +1,7 @@
 // fromEventPattern(
 //   addHandler: (handler: NodeEventHandler) => any,
 //   removeHandler?: (handler: NodeEventHandler, signal?: any) => void, 
-//   resultSelector?: (...args: any[]) => T
+//   resultSelector?: (...args: any[]) => T // DEPRECATED
 // ): Observable<T | T[]>
 
 import { fromEventPattern } from 'rxjs';

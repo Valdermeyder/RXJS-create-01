@@ -1,6 +1,6 @@
 // bindNodeCallback<T>(
 //   callbackFunc: Function, 
-//   resultSelector: Function | ShedulerLike, 
+//   resultSelector: Function | ShedulerLike, // DEPRECATED
 //   sheduler?: ShedulerLike
 // ): (...args: any[]) => Observable<T>
 

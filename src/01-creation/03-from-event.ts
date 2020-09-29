@@ -2,7 +2,7 @@
 //   target: FromEventTarget<T>, 
 //   eventName: string, 
 //   options?: EventListenerOptions | ((...args: any[]) => T), 
-//   resultSelector?: (...args: any[]) =>  T
+//   resultSelector?: (...args: any[]) =>  T  // DEPRECATED
 // ): Observable<T>
 
 import { fromEvent } from 'rxjs';
