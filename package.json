@@ -1,8 +1,7 @@
 {
   "name": "rxjs-typescript-starter",
   "scripts": {
-    "project": "./node_modules/.bin/webpack-dev-server --config webpack.dev.js",
-    "start": "npm run project"
+    "start": "webpack-dev-server --config webpack.dev.js"
   },
   "dependencies": {
     "rxjs": "^6.5.5"
