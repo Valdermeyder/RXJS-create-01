@@ -1,5 +1,5 @@
 import { Observable, of, from, fromEvent, generate, pairs, EMPTY, concat, timer, zip, range, bindCallback, bindNodeCallback, fromEventPattern, interval, NEVER, throwError, defer } from "rxjs";
-import { map, take, tap, switchMap, filter, reduce, catchError, delay, concatMap, withLatestFrom } from "rxjs/operators";
+import { map, take, tap, switchMap, filter, reduce, catchError, delay, concatMap, withLatestFrom, pluck } from "rxjs/operators";
 import { fromFetch } from "rxjs/fetch";
 import { ajax } from "rxjs/ajax";
 import { addItem, run } from './../03-utils';
@@ -8,7 +8,7 @@ import { addItem, run } from './../03-utils';
 // Реализуйте тело функции, которая принимает переменное количество параметров 
 // и создает Observable, который выдает значения ее аргументов
 (function task1(...rest: any[]): void {
-    // const stream$ = 
+    const stream$ = of(...rest)
 
     // run(stream$);
 })(1, 'string', true, {});
@@ -17,8 +17,8 @@ import { addItem, run } from './../03-utils';
 // Реализуйте тело функции, которая принимает на вход массив и создает Observable,
 // который выдает значения этого массива
 (function task2(arr: any[]): void {
-    // const stream$ = 
-    
+    const stream$ = from(arr)
+
     // run(stream$);
 })([1, 'string', true, {}]);
 
@@ -27,14 +27,14 @@ import { addItem, run } from './../03-utils';
 // Реализуйте тело функции, которая создает Observable, который выдает случайные числа в дианазоне от min до max
 // используя генератор. Верните 10 чисел, используя take()
 (function task3() {
-    function* generator(min, max){
+    function* generator(min, max) {
         while (true) {
-          yield Math.floor( Math.random() * ( max - min ) ) + min;
+            yield Math.floor(Math.random() * (max - min)) + min;
         }
-      }
-      
-    // const stream$ = 
-    
+    }
+
+    const stream$ = from(generator(0, 100)).pipe(take(10))
+
     // run(stream$);
 })();
 
@@ -42,8 +42,9 @@ import { addItem, run } from './../03-utils';
 // Реализуйте тело функции, которая принимает 
 // id кнопки и создает Observable, который выдает значения времени клика по кнопке
 (function task3(buttonId: string): void {
-    // const stream$ = 
-    
+    const stream$ = fromEvent(document.getElementById(buttonId), 'click')
+        .pipe(map(event => event.timeStamp))
+
     // run(stream$);
 })('runBtn');
 
@@ -65,7 +66,7 @@ import { addItem, run } from './../03-utils';
 
     const foo = new С1();
 
-    // const stream$ = 
+    const stream$ = fromEventPattern(handler => foo.registerListener(handler))
 
     // run(stream$);
 
@@ -80,7 +81,12 @@ import { addItem, run } from './../03-utils';
 // Реализуйте функцию, которая создает Observable, который выдает имена пользователей. 
 // Используйте операторы: fromFetch('http://jsonplaceholder.typicode.com/users'), filter(), switchMap(), map()
 (function task5() {
-    // const stream$ = 
+    const stream$ = fromFetch('http://jsonplaceholder.typicode.com/users').pipe(
+        filter(response => response.ok),
+        switchMap(response => response.json()),
+        map(arr => arr.map(user => user.name)),
+        switchMap(arr => from(arr))
+    )
 
     // run(stream$);
 })();
@@ -89,7 +95,10 @@ import { addItem, run } from './../03-utils';
 // Реализуйте функцию, которая создает Observable, который выдает имена ползователей. 
 // Используйте операторы: ajax('http://jsonplaceholder.typicode.com/users'), switchMap(), map()
 (function task6() {
-    // const stream$ =
+    const stream$ = ajax('http://jsonplaceholder.typicode.com/users').pipe(
+        map(arr => arr.response.map(user => user.name)),
+        switchMap(arr => from(arr))
+    )
 
     // run(stream$);
 })();
@@ -98,7 +107,12 @@ import { addItem, run } from './../03-utils';
 // Реализуйте функцию, которая создает Observable, который запрашивает и выдает имена ползователей каждые 5с 
 // Используйте операторы: ajax('http://jsonplaceholder.typicode.com/users'), switchMap(), map()
 (function task7() {
-    // const stream$ = 
+    const stream$ = interval(5000)
+        .pipe(
+            switchMap(() => ajax('http://jsonplaceholder.typicode.com/users')),
+            map(arr => arr.response.map(user => user.name)),
+            switchMap(arr => from(arr))
+        )
 
     // run(stream$);
 })();
@@ -110,8 +124,10 @@ import { addItem, run } from './../03-utils';
 // Объедините эти потоки, используя zip
 (function task8() {
     const items = [1, 2, 3, 4, 5];
-    // const stream$ = 
-    
+    const stream$ = zip(from(items), timer(0, 2000)).pipe(
+        map(pair => pair[0])
+    )
+
     // run(stream$);
 })();
 
@@ -121,12 +137,14 @@ import { addItem, run } from './../03-utils';
 // Используйте функцию randomDelay(), of(), concatMap(), delay()
 (function task9() {
     function randomDelay(min: number, max: number) {
-        const pause = Math.floor( Math.random() * ( max - min ) ) + min;
+        const pause = Math.floor(Math.random() * (max - min)) + min;
         console.log(pause);
         return pause;
     }
 
-    // const stream$ = 
+    const stream$ = range(1, 10).pipe(
+        concatMap(element => of(element).pipe(delay(randomDelay(1000, 5000))))
+    )
 
     // run(stream$);
 })();
@@ -147,10 +165,17 @@ import { addItem, run } from './../03-utils';
         flat: 23
     });
 
-    const  fieldsStream = from(['country', 'street', 'flat']);
+    const fieldsStream = from(['country', 'street', 'flat']);
 
-    // const stream$ = 
-    
+    const stream$ = objAddressStream.pipe(
+        switchMap(obj => pairs(obj)),
+        withLatestFrom(fieldsStream.pipe(
+            reduce((acc, value) => [...acc, value], [])
+        )),
+        filter(([[field], allowedFields]) => allowedFields.includes(field)),
+        reduce((acc, [[field, fieldValue]]) => ({ ...acc, [field]: fieldValue }), {})
+    )
+
     // run(stream$); 
 })();
 
@@ -161,8 +186,9 @@ import { addItem, run } from './../03-utils';
 // Используейте EMPTY, delay, from, concatMap, concat
 (function task11() {
     const items = [1, 2, 3, 4, 5];
+    const pause = EMPTY.pipe(delay(2000))
 
-    // const stream$ = 
+    const stream$ = from(items).pipe(concatMap(val => concat(of(val), pause)))
 
     // run(stream$);
 })();
@@ -174,7 +200,7 @@ import { addItem, run } from './../03-utils';
 (function task11() {
     const items = [1, 2, 3, 4, 5];
 
-    // const stream$ = 
+    const stream$ = concat(from(items), NEVER)
 
     // run(stream$);
 })();
@@ -185,7 +211,14 @@ import { addItem, run } from './../03-utils';
 (function task11() {
     const items = [1, 2, 3, 4, 5];
 
-    // const stream$ = 
+    const stream$ = from(items).pipe(
+        switchMap(val => {
+            if (val === 3) {
+                return throwError('3 is found')
+            }
+            return of(val)
+        })
+    )
 
     // run(stream$);
 })();
@@ -202,9 +235,9 @@ import { addItem, run } from './../03-utils';
         }, 3000);
     }
 
-    
+    const reactiveDoAsyncJob = bindCallback(doAsyncJob)
 
-    // const stream$ = reactiveDoAsyncJob({ name: 'Anna' });
+    const stream$ = reactiveDoAsyncJob({ name: 'Anna' });
 
     // run(stream$);
 })();
@@ -222,8 +255,9 @@ import { addItem, run } from './../03-utils';
         }, 3000);
     }
 
+    const reactiveDoAsyncJob = bindNodeCallback(doAsyncJob)
 
-    // const stream$ = reactiveDoAsyncJob({ name: 'Anna' });
+    const stream$ = reactiveDoAsyncJob({ name: 'Anna' });
 
     // run(stream$);
 })();
@@ -241,7 +275,7 @@ import { addItem, run } from './../03-utils';
     // getUsers().then(data => data.json()).then(addItem);
 
 
-    // const stream$ = 
+    const stream$ = defer(() => getUsers())
 
     // addItem("I don't want that request now");
     // run(stream$);
@@ -272,10 +306,10 @@ import { addItem, run } from './../03-utils';
 
     const sequence = new C<number>().add(1).add(10).add(1000).add(10000);
 
-    // const stream$ = 
+    const stream$ = generate(0, i => i < sequence.size, i => i + 1, i => sequence.get(i))
 
     // run(stream$);
 })();
 
 
-export function runner() {}
+export function runner() { }
